@@ -1,18 +1,25 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-section-dropdown';
+import { StyleSheet, View } from 'react-native';
+import { SectionDropdown } from 'react-native-section-dropdown';
+import { StatusBar } from 'expo-status-bar';
+
+import _ from 'lodash';
+
+const data = _.times(2, (i) => ({
+  key: `section-${i}`,
+  title: `Section ${i + 1}`,
+  data: _.times(5, (j) => ({
+    label: `Item ${j + 1}`,
+    value: j + 1,
+  })),
+}));
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
-
-  React.useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
-
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <StatusBar style="auto" />
+      <SectionDropdown data={data} />
     </View>
   );
 }
