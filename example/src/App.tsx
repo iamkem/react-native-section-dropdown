@@ -38,6 +38,7 @@ export default function App() {
             fontSize: 16,
             fontWeight: 'bold',
           }}
+          onSelected={console.log}
         />
       </View>
     </View>

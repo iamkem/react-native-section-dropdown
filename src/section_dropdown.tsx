@@ -13,6 +13,8 @@ import type { DropdownItem, SectionItem } from './section_item';
 
 interface Props {
   data: SectionItem[];
+  defaultValue?: DropdownItem;
+  onSelected?: (item: DropdownItem) => void;
   accessoryRight?: () => JSX.Element;
   style?: StyleProp<ViewStyle>;
   selectedTextStyle?: StyleProp<TextStyle>;
@@ -27,6 +29,8 @@ interface Props {
 const SectionDropdown = (props: Props) => {
   const {
     data,
+    onSelected,
+    defaultValue,
     accessoryRight,
     style,
     selectedTextStyle,
@@ -40,7 +44,9 @@ const SectionDropdown = (props: Props) => {
 
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const [selectedItem, setSelectedItem] = useState<DropdownItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<DropdownItem | null>(
+    defaultValue ?? null
+  );
 
   const listRef = useRef<SectionList<DropdownItem, SectionItem>>(null);
 
@@ -48,11 +54,14 @@ const SectionDropdown = (props: Props) => {
     setShowDropdown(!showDropdown);
   }, [showDropdown]);
 
-  const selectItem = (item: DropdownItem) => {
-    setSelectedItem(item);
-
-    setShowDropdown(false);
-  };
+  const selectItem = useCallback(
+    (item: DropdownItem) => {
+      onSelected?.(item);
+      setSelectedItem(item);
+      setShowDropdown(false);
+    },
+    [onSelected, setSelectedItem, setShowDropdown]
+  );
 
   const scrollToItem = useCallback(
     (item: DropdownItem, itemIndex: number) => {
@@ -99,11 +108,13 @@ const SectionDropdown = (props: Props) => {
       );
     },
     [
+      selectedItem?.groupId,
+      selectedItem?.value,
+      selectedItemBackgroundColor,
       itemStyle,
       itemTextStyle,
-      selectedItem,
-      selectedItemBackgroundColor,
       scrollToItem,
+      selectItem,
     ]
   );
 
