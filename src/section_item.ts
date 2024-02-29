@@ -1,10 +1,11 @@
 export interface DropdownItem {
   label: string;
   value: any;
+  groupId: string;
 }
 
 export interface SectionItem {
-  key: string;
+  groupId: string;
   title: string;
   data: DropdownItem[];
 }

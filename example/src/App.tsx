@@ -1,25 +1,45 @@
 import * as React from 'react';
 
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { SectionDropdown } from 'react-native-section-dropdown';
 import { StatusBar } from 'expo-status-bar';
 
 import _ from 'lodash';
 
 const data = _.times(2, (i) => ({
-  key: `section-${i}`,
+  groupId: `section-${i}`,
   title: `Section ${i + 1}`,
   data: _.times(5, (j) => ({
     label: `Item ${j + 1}`,
     value: j + 1,
+    groupId: `section-${i}`,
   })),
 }));
+
+const IconDown = () => (
+  <Image
+    source={require('../assets/down.png')}
+    style={{
+      width: 20,
+      height: 20,
+    }}
+  />
+);
 
 export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      <SectionDropdown data={data} />
+      <View style={{ width: '30%' }}>
+        <SectionDropdown
+          data={data}
+          accessoryRight={IconDown}
+          itemHeaderTextStyle={{
+            fontSize: 16,
+            fontWeight: 'bold',
+          }}
+        />
+      </View>
     </View>
   );
 }
