@@ -45,6 +45,9 @@ const DATA = [
   }}
 />;
 ```
+### Demo
+
+https://github.com/iamkem/react-native-section-dropdown/assets/43561663/41a74176-dbb7-49bc-b1e7-6e4e8281bbc9
 
 ### Dropdown Item props
 
