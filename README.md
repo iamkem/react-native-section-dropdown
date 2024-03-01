@@ -7,6 +7,11 @@ A simple react native component
 ```sh
 npm install react-native-section-dropdown
 ```
+###### Or
+
+```sh
+yarn add react-native-section-dropdown
+```
 
 ## Usage
 
