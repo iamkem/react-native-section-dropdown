@@ -8,6 +8,8 @@ import {
   type ViewStyle,
   type StyleProp,
   type TextStyle,
+  Modal,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import type { DropdownItem, SectionItem } from './section_item';
 
@@ -25,6 +27,8 @@ interface Props {
   itemTextStyle?: StyleProp<TextStyle>;
   selectedItemBackgroundColor?: string;
 }
+
+const MAX_HEIGHT = 150;
 
 const SectionDropdown = (props: Props) => {
   const {
@@ -50,9 +54,29 @@ const SectionDropdown = (props: Props) => {
 
   const listRef = useRef<SectionList<DropdownItem, SectionItem>>(null);
 
+  const viewRef = useRef<View>(null);
+
+  const [position, setPosition] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
+
   const toggleDropdown = useCallback(() => {
     setShowDropdown(!showDropdown);
   }, [showDropdown]);
+
+  const handleTriggerLayout = useCallback(() => {
+    viewRef?.current?.measureInWindow((pageX, pageY, width, height) => {
+      setPosition({
+        x: Math.floor(pageX),
+        y: Math.floor(pageY) + height,
+        width: Math.floor(width),
+        height: Math.floor(height),
+      });
+    });
+  }, []);
 
   const selectItem = useCallback(
     (item: DropdownItem) => {
@@ -158,20 +182,36 @@ const SectionDropdown = (props: Props) => {
 
   return (
     <View style={styles.container}>
-      {renderTrigger()}
-      {showDropdown && (
-        <SectionList
-          ref={listRef}
-          sections={data}
-          style={styles.dropdownList}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          renderSectionHeader={renderSectionHeader}
-          onScrollToIndexFailed={(index) => {
-            console.log('scroll to index failed', index);
-          }}
-        />
-      )}
+      <View ref={viewRef} onLayout={handleTriggerLayout}>
+        {renderTrigger()}
+      </View>
+      <Modal visible={showDropdown} transparent={true} animationType={'fade'}>
+        <TouchableWithoutFeedback onPress={toggleDropdown}>
+          <View style={{ flex: 1 }}>
+            <View
+              style={StyleSheet.flatten([
+                styles.modalView,
+                {
+                  width: position.width,
+                  left: position.x,
+                  top: position.y,
+                },
+              ])}
+            >
+              <SectionList
+                ref={listRef}
+                sections={data}
+                keyExtractor={keyExtractor}
+                renderItem={renderItem}
+                renderSectionHeader={renderSectionHeader}
+                onScrollToIndexFailed={(index) => {
+                  console.log('scroll to index failed', index);
+                }}
+              />
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
@@ -190,16 +230,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  dropdownList: {
+  modalView: {
     position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
+    height: MAX_HEIGHT,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
+    shadowColor: '#000',
     borderColor: '#CCCCCC',
     borderRadius: 5,
-    maxHeight: 150,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
     zIndex: 1,
   },
   dropdownItem: {
@@ -209,6 +253,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#CCCCCC',
+    backgroundColor: '#FFFFFF',
   },
   icon: {
     width: 20,
