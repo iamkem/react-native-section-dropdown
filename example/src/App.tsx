@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { SectionDropdown } from 'react-native-section-dropdown';
 import { StatusBar } from 'expo-status-bar';
 
@@ -30,7 +30,8 @@ export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      <View style={{ width: '30%' }}>
+      <View style={{ width: '30%', alignItems: 'center' }}>
+        <Text>Bottom</Text>
         <SectionDropdown
           data={data}
           accessoryRight={IconDown}
@@ -39,6 +40,19 @@ export default function App() {
             fontWeight: 'bold',
           }}
           onSelected={console.log}
+        />
+      </View>
+      <View style={{ width: '30%', alignItems: 'center' }}>
+        <Text>Top</Text>
+        <SectionDropdown
+          data={data}
+          accessoryRight={IconDown}
+          itemHeaderTextStyle={{
+            fontSize: 16,
+            fontWeight: 'bold',
+          }}
+          onSelected={console.log}
+          listPosition="top"
         />
       </View>
     </View>

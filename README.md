@@ -85,6 +85,7 @@ https://github.com/iamkem/react-native-section-dropdown/assets/43561663/41a74176
 | itemStyle                   | ViewStyle                    | No        | Styling for each item                                              |
 | itemTextStyle               | TextStyle                    | No        | Styling for each item text                                         |
 | selectedItemBackgroundColor | String                       | No        | Background color for selected item                                 |
+| listPosition                | Top, Bottom                  | No        | Position of dropdown list                                          |
 
 ## Contributing
 

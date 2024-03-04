@@ -26,6 +26,7 @@ interface Props {
   itemStyle?: StyleProp<ViewStyle>;
   itemTextStyle?: StyleProp<TextStyle>;
   selectedItemBackgroundColor?: string;
+  listPosition?: 'top' | 'bottom';
 }
 
 const MAX_HEIGHT = 150;
@@ -44,6 +45,7 @@ const SectionDropdown = (props: Props) => {
     itemStyle,
     itemTextStyle,
     placeholder = 'Select item',
+    listPosition = 'bottom',
   } = props;
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -71,7 +73,7 @@ const SectionDropdown = (props: Props) => {
     viewRef?.current?.measureInWindow((pageX, pageY, width, height) => {
       setPosition({
         x: Math.floor(pageX),
-        y: Math.floor(pageY) + height,
+        y: Math.floor(pageY + height),
         width: Math.floor(width),
         height: Math.floor(height),
       });
@@ -176,6 +178,50 @@ const SectionDropdown = (props: Props) => {
     accessoryRight,
   ]);
 
+  const renderModalContent = useCallback(() => {
+    const isTop = listPosition === 'top';
+
+    const pos: ViewStyle = {
+      width: position.width,
+      left: position.x,
+      top: position.y,
+    };
+
+    if (isTop) {
+      pos.top = position.y - MAX_HEIGHT - position.height;
+    }
+
+    return (
+      <TouchableWithoutFeedback onPress={toggleDropdown}>
+        <View style={{ flex: 1 }}>
+          <View style={StyleSheet.flatten([styles.modalView, pos])}>
+            <SectionList
+              inverted={isTop}
+              ref={listRef}
+              sections={data}
+              keyExtractor={keyExtractor}
+              renderItem={renderItem}
+              renderSectionHeader={renderSectionHeader}
+              onScrollToIndexFailed={(index) => {
+                console.log('scroll to index failed', index);
+              }}
+            />
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  }, [
+    data,
+    listPosition,
+    position.height,
+    position.width,
+    position.x,
+    position.y,
+    renderItem,
+    renderSectionHeader,
+    toggleDropdown,
+  ]);
+
   const keyExtractor = (item: DropdownItem, index: number) => {
     return index.toString() + item.label;
   };
@@ -186,31 +232,7 @@ const SectionDropdown = (props: Props) => {
         {renderTrigger()}
       </View>
       <Modal visible={showDropdown} transparent={true} animationType={'fade'}>
-        <TouchableWithoutFeedback onPress={toggleDropdown}>
-          <View style={{ flex: 1 }}>
-            <View
-              style={StyleSheet.flatten([
-                styles.modalView,
-                {
-                  width: position.width,
-                  left: position.x,
-                  top: position.y,
-                },
-              ])}
-            >
-              <SectionList
-                ref={listRef}
-                sections={data}
-                keyExtractor={keyExtractor}
-                renderItem={renderItem}
-                renderSectionHeader={renderSectionHeader}
-                onScrollToIndexFailed={(index) => {
-                  console.log('scroll to index failed', index);
-                }}
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
+        {renderModalContent()}
       </Modal>
     </View>
   );
@@ -218,7 +240,6 @@ const SectionDropdown = (props: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
     width: '100%',
   },
   triggerContainer: {
@@ -239,12 +260,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    zIndex: 1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   dropdownItem: {
     padding: 10,
