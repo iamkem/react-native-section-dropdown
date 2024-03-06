@@ -1,3 +1,3 @@
-import SectionDropdown from './section_dropdown';
+import { SectionDropdown } from './section_dropdown';
 
 export { SectionDropdown };

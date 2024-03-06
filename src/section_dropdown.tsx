@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -29,9 +29,9 @@ interface Props {
   listPosition?: 'top' | 'bottom';
 }
 
-const MAX_HEIGHT = 150;
+const MAX_HEIGHT = 250;
 
-const SectionDropdown = (props: Props) => {
+export const SectionDropdown = (props: Props) => {
   const {
     data,
     onSelected,
@@ -54,6 +54,12 @@ const SectionDropdown = (props: Props) => {
     defaultValue ?? null
   );
 
+  useEffect(() => {
+    if (typeof defaultValue !== 'undefined') {
+      setSelectedItem(defaultValue);
+    }
+  }, [defaultValue]);
+
   const listRef = useRef<SectionList<DropdownItem, SectionItem>>(null);
 
   const viewRef = useRef<View>(null);
@@ -65,10 +71,6 @@ const SectionDropdown = (props: Props) => {
     height: 0,
   });
 
-  const toggleDropdown = useCallback(() => {
-    setShowDropdown(!showDropdown);
-  }, [showDropdown]);
-
   const handleTriggerLayout = useCallback(() => {
     viewRef?.current?.measureInWindow((pageX, pageY, width, height) => {
       setPosition({
@@ -79,6 +81,11 @@ const SectionDropdown = (props: Props) => {
       });
     });
   }, []);
+
+  const toggleDropdown = useCallback(() => {
+    handleTriggerLayout();
+    setShowDropdown(!showDropdown);
+  }, [handleTriggerLayout, showDropdown]);
 
   const selectItem = useCallback(
     (item: DropdownItem) => {
@@ -147,11 +154,11 @@ const SectionDropdown = (props: Props) => {
   const renderSectionHeader = useCallback(
     ({ section }: { section: SectionItem }) => {
       return (
-        <View
+        <TouchableOpacity
           style={StyleSheet.flatten([styles.sectionHeader, itemHeaderStyle])}
         >
           <Text style={itemHeaderTextStyle}>{section.title}</Text>
-        </View>
+        </TouchableOpacity>
       );
     },
     [itemHeaderStyle, itemHeaderTextStyle]
@@ -187,8 +194,12 @@ const SectionDropdown = (props: Props) => {
       top: position.y,
     };
 
+    let sections = data;
+
     if (isTop) {
       pos.top = position.y - MAX_HEIGHT - position.height;
+
+      sections = data.slice().reverse();
     }
 
     return (
@@ -196,9 +207,8 @@ const SectionDropdown = (props: Props) => {
         <View style={{ flex: 1 }}>
           <View style={StyleSheet.flatten([styles.modalView, pos])}>
             <SectionList
-              inverted={isTop}
               ref={listRef}
-              sections={data}
+              sections={sections}
               keyExtractor={keyExtractor}
               renderItem={renderItem}
               renderSectionHeader={renderSectionHeader}
@@ -231,7 +241,7 @@ const SectionDropdown = (props: Props) => {
       <View ref={viewRef} onLayout={handleTriggerLayout}>
         {renderTrigger()}
       </View>
-      <Modal visible={showDropdown} transparent={true} animationType={'fade'}>
+      <Modal visible={showDropdown} transparent={true}>
         {renderModalContent()}
       </Modal>
     </View>
@@ -280,5 +290,3 @@ const styles = StyleSheet.create({
     height: 20,
   },
 });
-
-export default SectionDropdown;
